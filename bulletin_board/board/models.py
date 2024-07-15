@@ -1,15 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse
 from tinymce.models import HTMLField
 
 # Create your models here.
-
-
-# class Author(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#
-#     def __str__(self):
-#         return f'{self.user.username}'
 
 
 class Post(models.Model):
@@ -34,6 +28,9 @@ class Post(models.Model):
 
     def __str__(self):  # настройка отображения на страницах
         return f'{self.title[:20]}'
+
+    def get_absolute_url(self):
+        return reverse('post_details', args=[str(self.id)])
 
 
 class Reply(models.Model):

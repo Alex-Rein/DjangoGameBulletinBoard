@@ -8,8 +8,9 @@ Post
 
 {% block content %}
     <h1>{{ post.title|censor }}</h1>
-    <h3>{{ post.created|date:"d M Y" }}</h3>
-    <h4>Категория: {{ post.get_category_display }}</h4>
+    <h3>Автор - "{{ request.user.username }}"</h3>
+    <h5>Категория - <a href="{% url 'category_list' post.category %}">{{ post.get_category_display }}</a></h5>
+    <p>{{ post.created|date:"d M Y" }}</p>
     <hr>
     {{ post.content|safe }}
 {% endblock content %}

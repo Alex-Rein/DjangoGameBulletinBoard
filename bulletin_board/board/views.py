@@ -30,19 +30,36 @@ class PostCreate(LoginRequiredMixin, CreateView):
     template_name = 'post_edit.html'
     form_class = PostForm
 
-    # def post(self, request, *args, **kwargs):
-    #     form = PostForm(*args, **kwargs)
-    #     # form = PostForm(*args, user=request.user, **kwargs)
-    #     if form.is_valid():
-    #         post = form.save(commit=False)
-    #         post.author = self.request.user.username
-    #         post.save()
-    #         return HttpResponseRedirect(reverse_lazy('board:post_details', args=[post.id]))
-    #     return render(request, 'post_edit.html', {'form': form})
-
     def form_valid(self, form):
         post = form.save(commit=False)
         post.author = self.request.user
         post.save()
         return super().form_valid(form)
 
+
+class PostEdit(LoginRequiredMixin, UpdateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'post_edit.html'
+
+
+class CategoryList(PostList):
+    model = Post
+    template_name = 'category_list.html'
+    context_object_name = 'category_list'
+
+    def get_queryset(self):
+        queryset = Post.objects.filter(category=self.kwargs['category']).order_by('-created')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # category = [y for x, y in Post.CATEGORIES if x == self.kwargs['category']]
+        # category = [item for item in Post.CATEGORIES if self.kwargs['category'] in item]
+        category = dict(Post.CATEGORIES)
+        # if category:
+        #     context['category'] = category[0]
+        #     context['category'] = category[0][1]
+        if self.kwargs['category'] in category.keys():
+            context['category'] = category[self.kwargs['category']]
+        return context

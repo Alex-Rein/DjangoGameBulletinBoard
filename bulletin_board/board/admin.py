@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.db import models
 
-# from .models import Post, Author, Reply
 from .models import Post, Reply
 from tinymce.widgets import TinyMCE
 
@@ -14,6 +13,5 @@ class PostAdmin(admin.ModelAdmin):
 
 
 # Register your models here.
-# admin.site.register(Author)
 admin.site.register(Post, PostAdmin)
 admin.site.register(Reply)
