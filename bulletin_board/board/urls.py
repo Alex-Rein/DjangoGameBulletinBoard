@@ -1,8 +1,10 @@
-# from django.contrib import admin
-# from django.urls import path, include
-#
-#
-# urlpatterns = [
-#     path('/', admin.site.urls),
-#     path('tinymce/', include('tinymce.urls')),
-# ]
+from django.contrib import admin
+from django.urls import path
+from .views import PostList, PostDetail, PostCreate
+
+
+urlpatterns = [
+    path('', PostList.as_view(), name='post_list'),
+    path('<int:pk>/', PostDetail.as_view(), name='post_details'),
+    path('create/', PostCreate.as_view(), name='post_create'),
+]

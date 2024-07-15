@@ -39,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.flatpages',
+    'django.contrib.sites',
     'board',
     'tinymce',
 ]
@@ -51,6 +53,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 ]
 
 ROOT_URLCONF = 'bulletin_board.urls'
@@ -121,7 +124,39 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+SITE_ID = 1
+
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': "silver",
+    'resize': "false",
+    'menubar': "file edit view insert format tools table help",
+    'toolbar':
+        "undo redo"
+        "bold italic underline strikethrough"
+        "fontselect fontsizeselect formatselect"
+        "alignleft aligncenter alignright alignjustify"
+        "outdent indent"
+        "numlist bullist checklist"
+        "forecolor backcolor casechange permanentpen formatpainter removeformat"
+        "pagebreak"
+        "charmap emoticons"
+        "fullscreen  preview save print"
+        "insertfile image media pageembed template link anchor codesample"
+        "a11ycheck ltr rtl"
+        "showcomments addcomment code typography",
+    'plugins':
+        "advlist autolink lists link image charmap"
+        "print preview anchor searchreplace visualblocks"
+        "code fullscreen insertdatetime media table powerpaste"
+        "advcode help wordcount spellchecker typography",
+    'selector': "textarea",
+}

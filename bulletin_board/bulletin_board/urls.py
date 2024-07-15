@@ -16,8 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.views.generic import RedirectView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('tinymce/', include('tinymce.urls')),
+    path('pages/', include('django.contrib.flatpages.urls')),
+    path('', RedirectView.as_view(pattern_name='post_list'), name='index'),
+    path('posts/', include('board.urls')),
 ]
