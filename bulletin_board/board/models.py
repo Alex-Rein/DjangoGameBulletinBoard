@@ -25,6 +25,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     created = models.DateTimeField(auto_now_add=True)
     category = models.CharField(max_length=2, choices=CATEGORIES)
+    replies = models.ManyToManyField('Reply', blank=True, related_name='replies')
 
     def __str__(self):  # настройка отображения на страницах
         return f'{self.title[:20]}'
@@ -35,8 +36,18 @@ class Post(models.Model):
 
 class Reply(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.OneToOneField(Post, on_delete=models.CASCADE)
+    created = models.DateTimeField(auto_now_add=True)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
     text = models.TextField()
     accept = models.BooleanField(default=False)
 
+    def __str__(self):
+        return f'{self.post.title[:20]}'
 
+    def get_absolute_url(self):
+        return reverse('post_details', args=[str(self.post.id)])
+
+
+class PostReply(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    reply = models.ForeignKey(Reply, on_delete=models.CASCADE)

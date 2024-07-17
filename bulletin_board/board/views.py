@@ -1,12 +1,14 @@
+from django.contrib.auth.models import User
+from django.core.exceptions import PermissionDenied
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
-from django.urls import reverse_lazy
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse_lazy, reverse
 from django.views.generic import (ListView, DetailView,
                                   CreateView, UpdateView, DeleteView)
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 
 from .models import Post, Reply
-from .forms import PostForm
+from .forms import PostForm, ReplyForm
 
 
 # Create your views here.
@@ -42,6 +44,27 @@ class PostEdit(LoginRequiredMixin, UpdateView):
     form_class = PostForm
     template_name = 'post_edit.html'
 
+    def get_object(self, *args, **kwargs):
+        obj = super().get_object(*args, **kwargs)
+        if obj.author != self.request.user:
+            raise PermissionDenied()
+        return obj
+
+    # def get_queryset(self, *args, **kwargs):
+    #     return Post.objects.filter(author=self.request.user)
+
+
+class PostDelete(LoginRequiredMixin, DeleteView):
+    model = Post
+    success_url = 'post_list'
+    template_name = 'post_delete'
+
+    def get_object(self, *args, **kwargs):
+        obj = super().get_object(*args, **kwargs)
+        if obj.author != self.request.user:
+            raise PermissionDenied()
+        return obj
+
 
 class CategoryList(PostList):
     model = Post
@@ -63,3 +86,51 @@ class CategoryList(PostList):
         if self.kwargs['category'] in category.keys():
             context['category'] = category[self.kwargs['category']]
         return context
+
+
+class ReplyCreate(LoginRequiredMixin, CreateView):
+    model = Reply
+    template_name = 'reply_edit.html'
+    form_class = ReplyForm
+
+    def form_valid(self, form):
+        reply = form.save(commit=False)
+        reply.author = self.request.user
+        reply.post_id = self.kwargs['pk']
+        reply.save()
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(ReplyCreate, self).get_context_data(**kwargs)
+        context['object'] = self.object
+        return context
+
+    def dispatch(self, request, *args, **kwargs):
+        author = Post.objects.get(pk=self.kwargs['pk']).author
+        if request.user == author:
+            return HttpResponseRedirect(reverse('post_details', args=[self.kwargs['pk']]))
+        return super().dispatch(self, request, *args, **kwargs)
+
+
+class BoardPostsList(LoginRequiredMixin, ListView):
+    model = Post
+    ordering = '-created'
+    template_name = 'board_posts.html'
+    context_object_name = 'posts'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        if self.request.method == "GET":
+            return queryset.filter(author=self.request.user)
+        return Post.objects.none()
+
+    def get_object(self):
+        return get_object_or_404(
+            User,
+            username=self.kwargs.get('username'),
+            pk=self.request.user.pk
+        )
+
+
+

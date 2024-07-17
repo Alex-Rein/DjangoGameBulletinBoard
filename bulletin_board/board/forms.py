@@ -1,7 +1,7 @@
 from django import forms
 from tinymce.widgets import TinyMCE
 
-from .models import Post
+from .models import Post, Reply
 
 
 class PostForm(forms.ModelForm):
@@ -16,4 +16,14 @@ class PostForm(forms.ModelForm):
             'title',
             'content',
             'category',
+        ]
+
+
+class ReplyForm(forms.ModelForm):
+    text = forms.CharField(widget=forms.Textarea)
+
+    class Meta:
+        model = Reply
+        fields = [
+            'text',
         ]

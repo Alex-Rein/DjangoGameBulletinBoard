@@ -12,6 +12,10 @@ class PostAdmin(admin.ModelAdmin):
         models.TextField: {'widget': TinyMCE()}}
 
 
+class ReplyAdmin(admin.ModelAdmin):
+    list_display = ('id', 'author', '')
+
+
 # Register your models here.
 admin.site.register(Post, PostAdmin)
 admin.site.register(Reply)
