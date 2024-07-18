@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sites',
     'board',
     'tinymce',
+    'allauth',
+    'allauth.account',
 ]
 
 MIDDLEWARE = [
@@ -54,6 +56,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'bulletin_board.urls'
@@ -160,3 +163,8 @@ TINYMCE_DEFAULT_CONFIG = {
         "advcode help wordcount spellchecker typography",
     'selector': "textarea",
 }
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]

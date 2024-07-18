@@ -18,14 +18,15 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
 
-from board.views import BoardPostsList
+from board.views import BoardPostsList, BoardPostReplies
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('tinymce/', include('tinymce.urls')),
     path('pages/', include('django.contrib.flatpages.urls')),
+    path('accounts/', include('allauth.urls')),
     path('', RedirectView.as_view(pattern_name='post_list'), name='index'),
     path('posts/', include('board.urls')),
     path('board/<str:username>', BoardPostsList.as_view(), name='board'),
-
+    path('board/<str:username>/<int:pk>', BoardPostReplies.as_view(), name='board_post_replies')
 ]

@@ -96,20 +96,22 @@ class ReplyCreate(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         reply = form.save(commit=False)
         reply.author = self.request.user
-        reply.post_id = self.kwargs['pk']
+        post_ = Post.objects.get(pk=self.kwargs['pk'])
+        reply.post = post_
         reply.save()
+        post_.replies.add(reply)
         return super().form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        context = super(ReplyCreate, self).get_context_data(**kwargs)
-        context['object'] = self.object
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super(ReplyCreate, self).get_context_data(**kwargs)
+    #     context['object'] = self.object
+    #     return context
 
-    def dispatch(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):  # Проверка что на свое сообщение нельзя оставлять отклик
         author = Post.objects.get(pk=self.kwargs['pk']).author
         if request.user == author:
             return HttpResponseRedirect(reverse('post_details', args=[self.kwargs['pk']]))
-        return super().dispatch(self, request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
 
 class BoardPostsList(LoginRequiredMixin, ListView):
@@ -125,12 +127,35 @@ class BoardPostsList(LoginRequiredMixin, ListView):
             return queryset.filter(author=self.request.user)
         return Post.objects.none()
 
-    def get_object(self):
-        return get_object_or_404(
-            User,
-            username=self.kwargs.get('username'),
-            pk=self.request.user.pk
-        )
+    def dispatch(self, request, *args, **kwargs):  # Проверка чтобы можно было войти только в свою борду
+        # print('==============')
+        # print(request.user, self.kwargs['username'], request.user.username == self.kwargs['username'])
+        # print('==============')
+        if request.user.username != self.kwargs['username']:
+            # print('if')
+            return HttpResponseRedirect(reverse_lazy('board', args=[request.user.username]))
+        # print('else')
+        return super().dispatch(request, *args, **kwargs)
 
 
+class BoardPostReplies(LoginRequiredMixin, ListView):
+    model = Post
+    template_name = 'board_post_replies.html'
+    context_object_name = 'replies'
+    paginate_by = 10
 
+    def get_context_data(self, **kwargs):
+        context = super(BoardPostReplies, self).get_context_data(**kwargs)
+        post = Post.objects.get(pk=self.kwargs['pk'])
+        context['title'] = post.title
+        context['category'] = post.get_category_display
+        context['created'] = post.created
+        print('===============')
+        print(context)
+        print('===============')
+        return context
+
+    def get_queryset(self):
+        post_ = get_object_or_404(Post, id=self.kwargs['pk'])
+        queryset = post_.replies.all().order_by('-created')
+        return queryset
