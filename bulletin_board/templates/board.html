@@ -1,38 +1,43 @@
 {% extends 'flatpages/default.html' %}
 
-{% load custom_filters %}
 {% load custom_tags %}
+{% load custom_filters %}
 
 {% block title %}
-Posts
+Board
 {% endblock title %}
 
 {% block content %}
-    <h1>Объявления</h1>
-    {% if request.user.is_authenticated %}
-        <p class="text-left"><a href="{% url 'post_create' %}" class="btn btn-secondary btn-sm">Создать новое</a></p>
-    {% endif %}
+    <h3>{% current_time '%Y %b %d' %}</h3>
+    <form action="" method="get">
+        {{ filterset.form.as_p }}
+        <input type="submit" value="Найти" />
+    </form>
     <hr>
-{% if posts %}
+
+{% if replies %}
     <table cellspacing="15" cellpadding="10" border="1">
         <tr>
-            <td><b>Дата создания</b></td>
-            <td><b>Категория</b></td>
             <td><b>Автор</b></td>
-            <td><b>Заголовок</b></td>
+            <td><b>Дата создания</b></td>
+            <td><b>Содержание</b></td>
         </tr>
-        {% for post in posts %}
+        {% for reply in replies %}
         <tr>
-            <td>{{ post.created|date:"d M Y" }}</td>
-            <td><a href="{% url 'category_list' post.category %}">{{ post.get_category_display }}</a></td>
-            <td>{{ post.author.username }}</td>
-            <td><a href="{% url 'post_details' post.id %}">{{ post.title|censor }}</a></td>
+            <td>{{ reply.author }}</td>
+            <td>{{ reply.created }}</td>
+            <td>{{ reply.text|censor }}</td>
+            {% if not reply.accept %}
+                <td><a href="{% url 'reply_accept' reply.id %}" class="btn btn-secondary"><u>Принять</u></a></td>
+            {% else %}
+                <td><span class="btn btn-primary">Принято</span></td>
+            {% endif %}
+            <td><a href="{% url 'reply_delete' reply.id %}" class="btn btn-secondary"><u>Удалить</u></a></td>
         </tr>
         {% endfor %}
     </table>
-
 {% else %}
-  <h2>Объявлений нет</h2>
+    <h2>Откликов нет</h2>
 {% endif %}
 
 <p></p>

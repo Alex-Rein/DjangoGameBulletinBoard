@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.shortcuts import render
 from django.urls import reverse
 from tinymce.models import HTMLField
 
@@ -47,7 +48,18 @@ class Reply(models.Model):
     def get_absolute_url(self):
         return reverse('post_details', args=[str(self.post.id)])
 
+    def preview(self):
+        return self.text[:124]+'...'
+
 
 class PostReply(models.Model):
     post = models.ForeignKey(Post, on_delete=models.CASCADE)
     reply = models.ForeignKey(Reply, on_delete=models.CASCADE)
+
+
+class News(models.Model):
+    title = models.CharField(max_length=255, unique=True)
+    text = models.TextField()
+
+    # def get_absolute_url(self):
+    #     return render(template_name=)

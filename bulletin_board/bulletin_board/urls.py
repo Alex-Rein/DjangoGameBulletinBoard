@@ -18,7 +18,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
 
-from board.views import BoardPostsList, BoardPostReplies
+from board.views import (BoardPostsList, BoardPostReplies, BoardReplyList, ReplyDelete, reply_accept,
+                         NewsNotification, news_success)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -27,6 +28,11 @@ urlpatterns = [
     path('accounts/', include('allauth.urls')),
     path('', RedirectView.as_view(pattern_name='post_list'), name='index'),
     path('posts/', include('board.urls')),
-    path('board/<str:username>', BoardPostsList.as_view(), name='board'),
-    path('board/<str:username>/<int:pk>', BoardPostReplies.as_view(), name='board_post_replies')
+    path('board/<str:username>', BoardReplyList.as_view(), name='board'),
+    path('board_alt/<str:username>', BoardPostsList.as_view(), name='board_posts'),
+    path('board_alt/<str:username>/<int:pk>', BoardPostReplies.as_view(), name='board_post_replies'),
+    path('reply/delete/<int:pk>', ReplyDelete.as_view(), name='reply_delete'),
+    path('reply/accept/<int:reply_id>', reply_accept, name='reply_accept'),
+    path('news/', NewsNotification.as_view(), name='news'),
+    path('news/success', news_success, name='success'),
 ]
